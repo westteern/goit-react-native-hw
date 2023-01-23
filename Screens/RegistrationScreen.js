@@ -47,7 +47,7 @@ export default function RegistrationScreen() {
     }
   };
 
-  const keboardHide = () => {
+  const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
@@ -57,14 +57,14 @@ export default function RegistrationScreen() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={keboardHide}>
+    <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <ImageBackground
           style={styles.image}
           source={require("../assets/images/photo-bg.jpg")}
         >
           <KeyboardAvoidingView
-            behavior={Platform.OS == "ios" ? "padding" : "height"}
+          // behavior={Platform.OS == "ios" ? "padding" : "height"}
           >
             <View
               style={{

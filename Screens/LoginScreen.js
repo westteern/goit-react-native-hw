@@ -42,20 +42,21 @@ export default function LoginScreen() {
           source={require("../assets/images/photo-bg.jpg")}
         >
           <KeyboardAvoidingView
-          // behavior={Platform.OS == "ios" ? "padding" : "height"}
+            behavior={Platform.OS == "ios" ? "padding" : ""}
           >
             <View
               style={{
                 ...styles.form,
-                height: isShowKeyboard ? 249 : 489,
+                paddingBottom: isShowKeyboard ? 32 : 144,
               }}
             >
               <View>
                 <Text style={styles.formTitle}>Login</Text>
                 <TextInput
                   style={{
-                    ...styles.inputMail,
+                    ...styles.input,
                     borderColor: isActiveMail ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isActiveMail ? "#FFFFFF" : "#F6F6F6",
                   }}
                   onFocus={() => {
                     setIsShowKeyboard(true);
@@ -74,8 +75,9 @@ export default function LoginScreen() {
                 <View style={{ marginTop: 16, position: "relative" }}>
                   <TextInput
                     style={{
-                      ...styles.inputPass,
+                      ...styles.input,
                       borderColor: isActivePass ? "#FF6C00" : "#E8E8E8",
+                      backgroundColor: isActivePass ? "#FFFFFF" : "#F6F6F6",
                     }}
                     onFocus={() => {
                       setIsShowKeyboard(true);
@@ -104,16 +106,17 @@ export default function LoginScreen() {
                     </Text>
                   </Pressable>
                 </View>
-                <View style={{ marginTop: 43 }}>
-                  <TouchableOpacity
-                    activeOpacity={0.8}
-                    style={styles.btn}
-                    onPress={onSubmit}
-                  >
-                    <Text style={styles.textBtn}>Log In</Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={{ marginTop: 16 }}>
+
+                <View style={{ display: isShowKeyboard ? "none" : "flex" }}>
+                  <View style={{ marginTop: 43 }}>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={styles.btn}
+                      onPress={onSubmit}
+                    >
+                      <Text style={styles.textBtn}>Log In</Text>
+                    </TouchableOpacity>
+                  </View>
                   <Text style={styles.noRegisterText}>
                     Don't have an account? Register
                   </Text>
@@ -138,27 +141,17 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   form: {
-    height: 489,
     paddingHorizontal: 16,
     backgroundColor: "#FFFFFF",
     borderTopStartRadius: 25,
     borderTopEndRadius: 25,
     fontFamily: "Roboto-Regular",
   },
-  inputMail: {
+  input: {
     height: 50,
     paddingHorizontal: 16,
     borderWidth: 1,
     borderRadius: 8,
-    backgroundColor: "#F6F6F6",
-    fontSize: 16,
-  },
-  inputPass: {
-    height: 50,
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: "#F6F6F6",
     fontSize: 16,
   },
   toggleShowPass: {
@@ -189,6 +182,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   noRegisterText: {
+    marginTop: 16,
     textAlign: "center",
     color: "#1B4371",
     fontSize: 16,

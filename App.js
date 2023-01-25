@@ -1,8 +1,7 @@
+import * as Font from "expo-font";
 import LoginScreen from "./Screens/LoginScreen";
 import RegistrationScreen from "./Screens/RegistrationScreen";
-// import { useFonts } from "expo-font";
-// import { useCallback } from "react";
-import * as Font from "expo-font";
+
 import * as SplashScreen from "expo-splash-screen";
 import { useState, useEffect } from "react";
 

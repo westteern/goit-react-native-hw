@@ -14,7 +14,7 @@ import {
   Image,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const imageBg = require("../assets/images/photo-bg.jpg");
 const initialState = {
@@ -55,6 +55,19 @@ export default function RegistrationScreen() {
     console.log(state, avatar);
     setState(initialState);
   };
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setIsShowKeyboard(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setIsShowKeyboard(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
@@ -68,6 +81,7 @@ export default function RegistrationScreen() {
                 ...styles.form,
                 paddingBottom: isShowKeyboard ? 10 : 78,
               }}
+              onKeyBoardHide
             >
               <View style={styles.avatar}>
                 <Image source={{ uri: avatar }} style={styles.avatarImg} />
@@ -147,9 +161,7 @@ export default function RegistrationScreen() {
                       setIsShowKeyboard(true);
                       setIsActivePass(true);
                     }}
-                    onBlur={() => {
-                      setIsActivePass(false), setIsShowKeyboard(true);
-                    }}
+                    onBlur={() => setIsActivePass(false)}
                     placeholder={"Password"}
                     secureTextEntry={isSecurity}
                     maxLength={20}

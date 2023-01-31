@@ -1,9 +1,12 @@
 import * as Font from "expo-font";
-import LoginScreen from "./Screens/LoginScreen";
-import RegistrationScreen from "./Screens/RegistrationScreen";
+
+import { useState, useEffect } from "react";
+
+import { NavigationContainer } from "@react-navigation/native";
 
 import * as SplashScreen from "expo-splash-screen";
-import { useState, useEffect } from "react";
+
+import { useRoute } from "./router";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -14,6 +17,8 @@ const fonts = {
 
 export default function App() {
   const [fontsIsReady, setFontsIsReady] = useState(false);
+  // const [isAuth, setIsAuth] = useState(false);
+  const routing = useRoute();
 
   useEffect(() => {
     async function prepare() {
@@ -33,10 +38,5 @@ export default function App() {
   if (!fontsIsReady) {
     return null;
   }
-  return (
-    <>
-      {/* <LoginScreen /> */}
-      <RegistrationScreen />
-    </>
-  );
+  return <NavigationContainer>{routing}</NavigationContainer>;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Text,
   View,
@@ -9,30 +9,24 @@ import {
 } from "react-native";
 
 import { PostsCard } from "../../components/PostCard";
+import { ListEmpty } from "../../components/ListEmpty";
 
 const USER = {
-  avatar: require("../../assets/images/avatar.png"),
+  avatar: require("../../../assets/images/avatar.png"),
   name: "Natali Romanova",
   email: "email@example.com",
 };
-const POSTS = [
-  {
-    id: "1",
-    url: require("../../assets/images/lake.png"),
-    title: "Lake",
-    mapMark: "Ivano-Frankivs'k Region, Ukraine",
-  },
-  {
-    id: "2",
-    url: require("../../assets/images//forest.png"),
-    title: "Forest",
-    mapMark: "Ivano-Frankivs'k Region, Ukraine",
-  },
-];
 
-export default function PostsScreen({ navigation }) {
-  const [posts, setPosts] = useState(POSTS);
+export default function PostsScreen({ navigation, route }) {
+  const [posts, setPosts] = useState([]);
   const [user, setUser] = useState(USER);
+  useEffect(() => {
+    if (route.params) {
+      setPosts((prevState) => [...prevState, route.params]);
+    }
+  }, [route.params]);
+  console.log("posts", posts);
+
   return (
     <View style={styles.container}>
       <View style={styles.userCard}>
@@ -45,14 +39,17 @@ export default function PostsScreen({ navigation }) {
       <SafeAreaView style={{ flex: 1 }}>
         <FlatList
           data={posts}
+          keyExtractor={(item) => item.id}
+          ListEmptyComponent={<ListEmpty />}
           renderItem={({ item }) => (
             <PostsCard
-              url={item.url}
+              photo={item.photo}
               title={item.title}
-              mapMark={item.mapMark}
+              location={item.location}
+              coords={item.coords}
+              navigation={navigation}
             />
           )}
-          keyExtractor={(item) => item.id}
         />
       </SafeAreaView>
     </View>

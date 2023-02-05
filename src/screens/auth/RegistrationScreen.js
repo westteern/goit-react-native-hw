@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { AntDesign } from "@expo/vector-icons";
 import {
   StyleSheet,
   View,
@@ -11,26 +11,48 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Image,
 } from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import { useState, useEffect } from "react";
 
+const imageBg = require("../../../assets/images/photo-bg.jpg");
 const initialState = {
+  login: "",
   email: "",
   password: "",
 };
 
-export default function LoginScreen({ navigation }) {
+export default function RegistrationScreen({ navigation }) {
+  const [avatar, setAvatar] = useState(null);
   const [state, setState] = useState(initialState);
   const [isSecurity, setIsSecurity] = useState(true);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [isActiveLogin, setIsActiveLogin] = useState(false);
   const [isActiveMail, setIsActiveMail] = useState(false);
   const [isActivePass, setIsActivePass] = useState(false);
 
-  const keboardHide = () => {
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setAvatar(result.assets[0].uri);
+      console.log(avatar);
+    }
+  };
+
+  const keyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
   const onSubmit = () => {
-    console.log(state);
+    console.log(state, avatar);
     navigation.navigate("Home");
     setState(initialState);
   };
@@ -49,26 +71,68 @@ export default function LoginScreen({ navigation }) {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={keboardHide}>
+    <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
-        <ImageBackground
-          style={styles.image}
-          source={require("../../assets/images/photo-bg.jpg")}
-        >
+        <ImageBackground style={styles.image} source={imageBg}>
           <KeyboardAvoidingView
             behavior={Platform.OS == "ios" ? "padding" : ""}
           >
             <View
               style={{
                 ...styles.form,
-                paddingBottom: isShowKeyboard ? 32 : 144,
+                paddingBottom: isShowKeyboard ? 10 : 78,
               }}
             >
-              <View>
-                <Text style={styles.formTitle}>Login</Text>
+              <View style={styles.avatar}>
+                <Image source={{ uri: avatar }} style={styles.avatarImg} />
+                {avatar ? (
+                  <Pressable
+                    onPress={() => {
+                      setAvatar(null);
+                    }}
+                  >
+                    <View style={styles.removeAvatarIcon}>
+                      <AntDesign
+                        name="closecircleo"
+                        size={25}
+                        color="#E8E8E8"
+                      />
+                    </View>
+                  </Pressable>
+                ) : (
+                  <Pressable onPress={pickImage}>
+                    <View style={styles.addAvatarIcon}>
+                      <AntDesign name="pluscircleo" size={25} color="#FF6C00" />
+                    </View>
+                  </Pressable>
+                )}
+              </View>
+              <Text style={styles.formTitle}>Registration</Text>
+              <View width="100%">
                 <TextInput
                   style={{
                     ...styles.input,
+                    borderColor: isActiveLogin ? "#FF6C00" : "#E8E8E8",
+                    backgroundColor: isActiveLogin ? "#FFFFFF" : "#F6F6F6",
+                  }}
+                  onFocus={() => {
+                    setIsShowKeyboard(true);
+                    setIsActiveLogin(true);
+                  }}
+                  onBlur={() => setIsActiveLogin(false)}
+                  placeholder={"Login"}
+                  value={state.login}
+                  onChangeText={(value) =>
+                    setState((prevState) => ({
+                      ...prevState,
+                      login: value,
+                    }))
+                  }
+                />
+                <TextInput
+                  style={{
+                    ...styles.input,
+                    marginTop: 16,
                     borderColor: isActiveMail ? "#FF6C00" : "#E8E8E8",
                     backgroundColor: isActiveMail ? "#FFFFFF" : "#F6F6F6",
                   }}
@@ -131,9 +195,9 @@ export default function LoginScreen({ navigation }) {
                       <Text style={styles.textBtn}>Log In</Text>
                     </TouchableOpacity>
                   </View>
-                  <Pressable onPress={() => navigation.navigate("Register")}>
+                  <Pressable onPress={() => navigation.navigate("Login")}>
                     <Text style={styles.noRegisterText}>
-                      Don't have an account? Register
+                      Don't have an account? Log In
                     </Text>
                   </Pressable>
                 </View>
@@ -157,11 +221,41 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   form: {
+    position: "relative",
     paddingHorizontal: 16,
+    // width: "100%",
+    // height: 549,
     backgroundColor: "#FFFFFF",
-    borderTopStartRadius: 25,
-    borderTopEndRadius: 25,
-    fontFamily: "Roboto-Regular",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+    alignItems: "center",
+  },
+  avatar: {
+    position: "absolute",
+    flexDirection: "row",
+    top: -60,
+    width: 120,
+    height: 120,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 16,
+    alignItems: "flex-end",
+  },
+  avatarImg: {
+    width: 120,
+    height: 120,
+    borderRadius: 16,
+  },
+  addAvatarIcon: {
+    position: "absolute",
+    right: -13,
+    bottom: 14,
+  },
+  removeAvatarIcon: {
+    position: "absolute",
+    right: -13,
+    bottom: 14,
+    backgroundColor: "#fff",
+    borderRadius: 50,
   },
   input: {
     height: 50,
@@ -181,11 +275,11 @@ const styles = StyleSheet.create({
   },
   formTitle: {
     marginBottom: 32,
-    marginTop: 32,
+    marginTop: 92,
     textAlign: "center",
     fontFamily: "Roboto-Medium",
     fontSize: 30,
-    color: "#212121CC",
+    color: "#212121",
   },
   btn: {
     backgroundColor: "#FF6C00",

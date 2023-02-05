@@ -6,7 +6,7 @@ import { NavigationContainer } from "@react-navigation/native";
 
 import * as SplashScreen from "expo-splash-screen";
 
-import { useRoute } from "./router";
+import { useRoute } from "./src/router";
 
 SplashScreen.preventAutoHideAsync();
 

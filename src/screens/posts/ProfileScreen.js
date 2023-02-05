@@ -15,7 +15,7 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
 
-const imageBg = require("../../assets/images/photo-bg.jpg");
+const imageBg = require("../../../assets/images/photo-bg.jpg");
 const initialState = {
   login: "",
   email: "",

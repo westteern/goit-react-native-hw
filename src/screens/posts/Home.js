@@ -3,7 +3,8 @@ import { Pressable } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Dimensions } from "react-native";
 
-import PostsScreen from "./PostsScreen";
+import PostScreen from "./PostScreen";
+
 import CreatePostsScreen from "./CreatePostsScreen";
 import ProfileScreen from "./ProfileScreen";
 
@@ -50,7 +51,7 @@ export default function Home({ navigation }) {
     >
       <PostsTabNavigator.Screen
         name="Posts"
-        component={PostsScreen}
+        component={PostScreen}
         options={{
           headerRight: () => (
             <Pressable

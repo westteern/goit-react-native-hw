@@ -1,12 +1,13 @@
 import * as Font from "expo-font";
 
 import { useState, useEffect } from "react";
-
-import { NavigationContainer } from "@react-navigation/native";
+import { Toast } from "react-native-toast-message/lib/src/Toast";
 
 import * as SplashScreen from "expo-splash-screen";
 
-import { useRoute } from "./src/router";
+import { Provider } from "react-redux";
+import { store } from "./src/redux/store";
+import Main from "./src/components/Main";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -17,8 +18,6 @@ const fonts = {
 
 export default function App() {
   const [fontsIsReady, setFontsIsReady] = useState(false);
-  // const [isAuth, setIsAuth] = useState(false);
-  const routing = useRoute();
 
   useEffect(() => {
     async function prepare() {
@@ -38,5 +37,12 @@ export default function App() {
   if (!fontsIsReady) {
     return null;
   }
-  return <NavigationContainer>{routing}</NavigationContainer>;
+  return (
+    <>
+      <Provider store={store}>
+        <Main />
+      </Provider>
+      <Toast position="top" topOffset={100} />
+    </>
+  );
 }

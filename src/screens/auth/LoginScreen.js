@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { authSignInUser } from "../../redux/auth/authOperations";
 import {
   StyleSheet,
   View,
@@ -14,7 +16,7 @@ import {
 } from "react-native";
 
 const initialState = {
-  email: "",
+  mail: "",
   password: "",
 };
 
@@ -25,13 +27,14 @@ export default function LoginScreen({ navigation }) {
   const [isActiveMail, setIsActiveMail] = useState(false);
   const [isActivePass, setIsActivePass] = useState(false);
 
+  const dispatch = useDispatch();
+
   const keboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
-  const onSubmit = () => {
-    console.log(state);
-    navigation.navigate("Home");
+  const onSubmit = () => {    
+    dispatch(authSignInUser(state));
     setState(initialState);
   };
   useEffect(() => {
@@ -78,11 +81,11 @@ export default function LoginScreen({ navigation }) {
                   }}
                   onBlur={() => setIsActiveMail(false)}
                   placeholder={"Email"}
-                  value={state.email}
+                  value={state.mail}
                   onChangeText={(value) =>
                     setState((prevState) => ({
                       ...prevState,
-                      email: value,
+                      mail: value,
                     }))
                   }
                 />

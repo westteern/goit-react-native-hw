@@ -1,5 +1,15 @@
 import { AntDesign } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
+import { useDispatch, useSelector } from "react-redux";
+import { authSingOutUser } from "../../redux/auth/authOperations";
+import { db } from "../../firebase/config";
+import {
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+  where,
+} from "firebase/firestore";
 import {
   StyleSheet,
   View,
@@ -8,25 +18,28 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
   Image,
+  SafeAreaView,
+  FlatList,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useState, useEffect } from "react";
+import { PostsCard } from "../../components/PostCard";
+import { ListEmpty } from "../../components/ListEmpty";
 
 const imageBg = require("../../../assets/images/photo-bg.jpg");
-const initialState = {
-  login: "",
-  email: "",
-  password: "",
-};
 
 export default function RegistrationScreen({ navigation }) {
-  const [avatar, setAvatar] = useState(null);
+  const { login, avatar, userId } = useSelector((state) => state.auth);
+  const [userAvatar, setUserAvatar] = useState(avatar || null);
+  const [posts, setPosts] = useState([]);
+
+  const dispatch = useDispatch();
+  const logOut = () => {
+    dispatch(authSingOutUser());
+  };
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -35,10 +48,28 @@ export default function RegistrationScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
+      setUserAvatar(result.assets[0].uri);
       console.log(avatar);
     }
   };
+
+  useEffect(() => {
+    const request = query(
+      collection(db, "posts"),
+      where("id", "==", userId),
+      orderBy("postDate", "desc")
+    );
+    const unsubscribe = onSnapshot(request, (querySnapshot) => {
+      const allPosts = [];
+      querySnapshot.forEach((doc) => {
+        allPosts.push({ ...doc.data(), id: doc.id });
+      });
+      setPosts(allPosts);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -46,11 +77,11 @@ export default function RegistrationScreen({ navigation }) {
         <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
           <View style={styles.form}>
             <View style={styles.avatar}>
-              <Image source={{ uri: avatar }} style={styles.avatarImg} />
-              {avatar ? (
+              <Image source={{ uri: userAvatar }} style={styles.avatarImg} />
+              {userAvatar ? (
                 <Pressable
                   onPress={() => {
-                    setAvatar(null);
+                    setUserAvatar(null);
                   }}
                 >
                   <View style={styles.removeAvatarIcon}>
@@ -66,14 +97,31 @@ export default function RegistrationScreen({ navigation }) {
               )}
             </View>
             <Pressable
-              onPress={() => navigation.navigate("Login")}
+              onPress={logOut}
               title="LogOut"
               style={styles.logOutIcon}
             >
               <Feather name="log-out" size={24} color="#BDBDBD" />
             </Pressable>
-            <Text style={styles.formTitle}>User Name</Text>
-            <View width="100%"></View>
+            <Text style={styles.formTitle}>{login}</Text>
+            <SafeAreaView style={{ flex: 1, width: "100%" }}>
+              <FlatList
+                data={posts}
+                keyExtractor={(item) => item.id}
+                ListEmptyComponent={<ListEmpty />}
+                renderItem={({ item }) => (
+                  <PostsCard
+                    photo={item.photo}
+                    title={item.title}
+                    location={item.location}
+                    coords={item.coords}
+                    navigation={navigation}
+                    postId={item.id}
+                    likes={item.like}
+                  />
+                )}
+              />
+            </SafeAreaView>
           </View>
         </KeyboardAvoidingView>
       </ImageBackground>
@@ -129,8 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   formTitle: {
-    marginBottom: 32,
-    marginTop: 48,
+    marginVertical: 32,
     textAlign: "center",
     fontFamily: "Roboto-Medium",
     fontSize: 30,

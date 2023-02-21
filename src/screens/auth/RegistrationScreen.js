@@ -1,4 +1,8 @@
 import { AntDesign } from "@expo/vector-icons";
+import { useDispatch } from "react-redux";
+import { authSignUpUser } from "../../redux/auth/authOperations";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { storage } from "../../firebase/config";
 import {
   StyleSheet,
   View,
@@ -18,22 +22,22 @@ import { useState, useEffect } from "react";
 
 const imageBg = require("../../../assets/images/photo-bg.jpg");
 const initialState = {
+  avatar: null,
   login: "",
-  email: "",
+  mail: "",
   password: "",
 };
 
 export default function RegistrationScreen({ navigation }) {
-  const [avatar, setAvatar] = useState(null);
   const [state, setState] = useState(initialState);
   const [isSecurity, setIsSecurity] = useState(true);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [isActiveLogin, setIsActiveLogin] = useState(false);
   const [isActiveMail, setIsActiveMail] = useState(false);
   const [isActivePass, setIsActivePass] = useState(false);
+  const dispatch = useDispatch();
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -42,8 +46,26 @@ export default function RegistrationScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
-      console.log(avatar);
+      setState((prevState) => ({
+        ...prevState,
+        avatar: result.assets[0].uri,
+      }));
+    }
+  };
+  const uploadAvatar = async () => {
+    try {
+      const response = await fetch(state.avatar);
+      const file = await response.blob();
+      await uploadBytes(ref(storage, `userAvatar/${file._data.blobId}`), file);
+      const userAvatar = await getDownloadURL(
+        ref(storage, `userAvatar/${file._data.blobId}`)
+      );
+      setState((prevState) => ({
+        ...prevState,
+        avatar: userAvatar,
+      }));
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -51,9 +73,9 @@ export default function RegistrationScreen({ navigation }) {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
-  const onSubmit = () => {
-    console.log(state, avatar);
-    navigation.navigate("Home");
+  const onSubmit = async () => {
+    await uploadAvatar();
+    dispatch(authSignUpUser(state));
     setState(initialState);
   };
   useEffect(() => {
@@ -71,7 +93,7 @@ export default function RegistrationScreen({ navigation }) {
   }, []);
 
   return (
-    <TouchableWithoutFeedback onPress={keyboardHide}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <ImageBackground style={styles.image} source={imageBg}>
           <KeyboardAvoidingView
@@ -84,11 +106,17 @@ export default function RegistrationScreen({ navigation }) {
               }}
             >
               <View style={styles.avatar}>
-                <Image source={{ uri: avatar }} style={styles.avatarImg} />
-                {avatar ? (
+                <Image
+                  source={{ uri: state.avatar }}
+                  style={styles.avatarImg}
+                />
+                {state.avatar ? (
                   <Pressable
                     onPress={() => {
-                      setAvatar(null);
+                      setState((prevState) => ({
+                        ...prevState,
+                        avatar: null,
+                      }));
                     }}
                   >
                     <View style={styles.removeAvatarIcon}>
@@ -142,11 +170,11 @@ export default function RegistrationScreen({ navigation }) {
                   }}
                   onBlur={() => setIsActiveMail(false)}
                   placeholder={"Email"}
-                  value={state.email}
+                  value={state.mail}
                   onChangeText={(value) =>
                     setState((prevState) => ({
                       ...prevState,
-                      email: value,
+                      mail: value,
                     }))
                   }
                 />
@@ -192,7 +220,7 @@ export default function RegistrationScreen({ navigation }) {
                       style={styles.btn}
                       onPress={onSubmit}
                     >
-                      <Text style={styles.textBtn}>Log In</Text>
+                      <Text style={styles.textBtn}>Register</Text>
                     </TouchableOpacity>
                   </View>
                   <Pressable onPress={() => navigation.navigate("Login")}>

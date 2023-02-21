@@ -1,6 +1,9 @@
 import { Camera } from "expo-camera";
-import uuid from "react-native-uuid";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { collection, addDoc } from "firebase/firestore";
+import { storage, db } from "../../firebase/config";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import * as Location from "expo-location";
 import {
   Text,
@@ -14,7 +17,6 @@ import {
   Keyboard,
   Button,
   KeyboardAvoidingView,
-  ToastAndroid,
 } from "react-native";
 
 import { MaterialIcons, Octicons, AntDesign } from "@expo/vector-icons";
@@ -31,6 +33,7 @@ export default function CreatePostsScreen({ navigation }) {
   const [state, setState] = useState(initialState);
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [permission, requestPermission] = Camera.useCameraPermissions();
+  const { userId, login } = useSelector((state) => state.auth);
 
   useEffect(() => {
     (async () => {
@@ -109,13 +112,44 @@ export default function CreatePostsScreen({ navigation }) {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
   };
+  const uploadPhoto = async () => {
+    try {
+      const response = await fetch(state.photo);
+      const file = await response.blob();
+      await uploadBytes(ref(storage, `postPhoto/${file._data.blobId}`), file);
+      const photoUrl = await getDownloadURL(
+        ref(storage, `postPhoto/${file._data.blobId}`)
+      );
+      setState((prevState) => ({
+        ...prevState,
+        photo: photoUrl,
+      }));
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const uploadPost = async () => {
+    try {
+      await uploadPhoto();
+      await addDoc(collection(db, "posts"), {
+        ...state,
+        id: userId,
+        login: login,
+        postDate: Date.now().toString(),
+        like: 0,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (state.title === "" && state.photo === null) {
       alert("To create a post, add a photo and fill in the title field.");
       return;
     }
-    navigation.navigate("Posts", { ...state, id: uuid.v4() });
+    await uploadPost();
+    navigation.navigate("Posts");
     setCamera(null);
     setState(initialState);
   };

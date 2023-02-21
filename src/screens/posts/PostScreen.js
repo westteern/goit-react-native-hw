@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { db } from "../../firebase/config";
+import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
 import {
   Text,
   View,
@@ -11,29 +14,33 @@ import {
 import { PostsCard } from "../../components/PostCard";
 import { ListEmpty } from "../../components/ListEmpty";
 
-const USER = {
-  avatar: require("../../../assets/images/avatar.png"),
-  name: "Natali Romanova",
-  email: "email@example.com",
-};
-
 export default function PostsScreen({ navigation, route }) {
   const [posts, setPosts] = useState([]);
-  const [user, setUser] = useState(USER);
+  const { login, email, avatar } = useSelector((state) => state.auth);
+
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
-  console.log("posts", posts);
+    const request = query(collection(db, "posts"), orderBy("postDate", "desc"));
+    const unsubscribe = onSnapshot(request, (querySnapshot) => {
+      const allPosts = [];
+      querySnapshot.forEach((doc) => {
+        allPosts.push({ ...doc.data(), id: doc.id });
+      });
+      setPosts(allPosts);
+    });
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.userCard}>
-        <Image style={styles.avatar} source={user.avatar}></Image>
         <View>
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.email}>{user.email}</Text>
+          <Image style={styles.avatar} source={{ uri: avatar }}></Image>
+        </View>
+        <View>
+          <Text style={styles.name}>{login}</Text>
+          <Text style={styles.email}>{email}</Text>
         </View>
       </View>
       <SafeAreaView style={{ flex: 1 }}>
@@ -48,6 +55,8 @@ export default function PostsScreen({ navigation, route }) {
               location={item.location}
               coords={item.coords}
               navigation={navigation}
+              postId={item.id}
+              likes={item.like}
             />
           )}
         />

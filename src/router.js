@@ -1,5 +1,6 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { useState } from "react";
+import { Provider } from "react-redux";
 
 import LoginScreen from "./screens/auth/LoginScreen";
 import RegistrationScreen from "./screens/auth/RegistrationScreen";
@@ -10,8 +11,7 @@ import CommentsScreen from "./screens/nested/CommentsScreen";
 const AuthStack = createStackNavigator();
 const HomeStack = createStackNavigator();
 
-export const useRoute = () => {
-  const [isAuth, setIsAuth] = useState(true);
+export const useRoute = (isAuth) => {
   if (!isAuth) {
     return (
       <AuthStack.Navigator initialRouteName="Login">
@@ -37,13 +37,8 @@ export const useRoute = () => {
           borderBottomWidth: 1,
           borderBottomColor: "#BDBDBD",
         },
-        // headerLeftContainerStyle: {
-        //   bottom: 10,
-        // },
         headerTitleAlign: "center",
         headerTitleStyle: {
-          // position: "absolute",
-          // bottom: 10,
           alignSelf: "center",
           fontFamily: "Roboto-Medium",
           fontSize: 17,

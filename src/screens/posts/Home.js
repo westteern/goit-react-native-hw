@@ -1,6 +1,8 @@
+import { useDispatch } from "react-redux";
 import { Feather } from "@expo/vector-icons";
 import { Pressable } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { authSingOutUser } from "../../redux/auth/authOperations";
 import { Dimensions } from "react-native";
 
 import PostScreen from "./PostScreen";
@@ -12,6 +14,10 @@ const PostsTabNavigator = createBottomTabNavigator();
 const windowWidth = Dimensions.get("window").width;
 
 export default function Home({ navigation }) {
+  const dispatch = useDispatch();
+  const logOut = () => {
+    dispatch(authSingOutUser());
+  };
   return (
     <PostsTabNavigator.Navigator
       screenOptions={{
@@ -55,7 +61,7 @@ export default function Home({ navigation }) {
         options={{
           headerRight: () => (
             <Pressable
-              onPress={() => navigation.navigate("Login")}
+              onPress={logOut}
               title="LogOut"
               style={{
                 right: 18,

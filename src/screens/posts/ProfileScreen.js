@@ -70,6 +70,7 @@ export default function RegistrationScreen({ navigation }) {
       unsubscribe();
     };
   }, []);
+  console.log(posts);
 
   return (
     <View style={styles.container}>

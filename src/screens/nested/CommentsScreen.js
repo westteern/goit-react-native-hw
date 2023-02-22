@@ -95,9 +95,8 @@ export default function CommentsScreen({ route }) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <View style={styles.imageContainer}>
-          <Image style={styles.postImage} source={photo} />
-        </View>
+        <Image style={styles.postImage} source={{ uri: photo }} />
+
         <SafeAreaView style={{ flex: 1, marginTop: 32 }}>
           <FlatList
             data={state.commentsList}
@@ -171,12 +170,15 @@ const styles = StyleSheet.create({
     marginTop: 32,
     marginBottom: 8,
     borderRadius: 8,
-    backgroundColor: "#212121",
+    // backgroundColor: "#212121",
   },
   postImage: {
     width: "100%",
-    resizeMode: "cover",
+    height: 240,
+    marginTop: 32,
+    marginBottom: 8,
     borderRadius: 8,
+    resizeMode: "cover",
   },
   inputBox: {
     position: "relative",

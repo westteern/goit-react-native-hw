@@ -58,9 +58,7 @@ export const PostsCard = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image source={photo} style={styles.postImage} />
-      </View>
+      <Image source={{ uri: photo }} style={styles.postImage} />
       <Text style={styles.title}>{title}</Text>
       <View style={styles.bottomContainer}>
         <View style={styles.comments}>
@@ -115,12 +113,13 @@ const styles = StyleSheet.create({
     height: 240,
     borderRadius: 8,
     marginBottom: 8,
-    backgroundColor: "#212121",
   },
   postImage: {
     width: "100%",
-    resizeMode: "cover",
+    height: 240,
     borderRadius: 8,
+    marginBottom: 8,
+    resizeMode: "cover",
   },
   title: {
     fontFamily: "Roboto-Medium",

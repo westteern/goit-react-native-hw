@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { useSelector } from "react-redux";
 import { db } from "../../firebase/config";
 import { collection, query, onSnapshot, orderBy } from "firebase/firestore";
@@ -14,7 +15,7 @@ import {
 import { PostsCard } from "../../components/PostCard";
 import { ListEmpty } from "../../components/ListEmpty";
 
-export default function PostsScreen({ navigation, route }) {
+export default function PostsScreen({ navigation }) {
   const [posts, setPosts] = useState([]);
   const { login, email, avatar } = useSelector((state) => state.auth);
 
@@ -31,6 +32,30 @@ export default function PostsScreen({ navigation, route }) {
       unsubscribe();
     };
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const request = query(
+        collection(db, "posts"),
+        orderBy("postDate", "desc")
+      );
+
+      const unsubscribe = onSnapshot(request, (querySnapshot) => {
+        const allPosts = [];
+        querySnapshot.forEach((doc) => {
+          allPosts.push({ ...doc.data(), id: doc.id });
+          console.log("push");
+        });
+
+        setPosts(allPosts);
+      });
+      return () => {
+        unsubscribe();
+        console.log("is focus");
+        setPosts([]);
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

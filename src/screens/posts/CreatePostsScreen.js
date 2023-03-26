@@ -120,19 +120,18 @@ export default function CreatePostsScreen({ navigation }) {
       const photoUrl = await getDownloadURL(
         ref(storage, `postPhoto/${file._data.blobId}`)
       );
-      setState((prevState) => ({
-        ...prevState,
-        photo: photoUrl,
-      }));
+      return photoUrl;
     } catch (error) {
       console.log(error);
     }
   };
+
   const uploadPost = async () => {
     try {
-      await uploadPhoto();
+      const photo = await uploadPhoto();
       await addDoc(collection(db, "posts"), {
         ...state,
+        photo,
         id: userId,
         login: login,
         postDate: Date.now().toString(),

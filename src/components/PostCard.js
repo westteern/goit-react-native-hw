@@ -27,9 +27,9 @@ export const PostsCard = ({
       const request = collection(db, "posts", postId, "comments");
       const snapshot = await getCountFromServer(request);
       setCommentsCounter(snapshot.data().count);
-      return () => {
-        unsubscribe();
-      };
+      // return () => {
+      //   unsubscribe();
+      // };
     } catch (error) {
       console.log(error);
     }
@@ -54,6 +54,7 @@ export const PostsCard = ({
   useEffect(() => {
     getCommentsCount();
     setLikesCounter(likes || 0);
+    console.log("work");
   }, []);
 
   return (

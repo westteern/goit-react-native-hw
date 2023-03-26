@@ -1,6 +1,4 @@
 import { createStackNavigator } from "@react-navigation/stack";
-import { useState } from "react";
-import { Provider } from "react-redux";
 
 import LoginScreen from "./screens/auth/LoginScreen";
 import RegistrationScreen from "./screens/auth/RegistrationScreen";

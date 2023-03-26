@@ -1,6 +1,7 @@
 import { AntDesign } from "@expo/vector-icons";
 import { Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { useFocusEffect } from "@react-navigation/native";
 import { authSingOutUser } from "../../redux/auth/authOperations";
 import { db } from "../../firebase/config";
 import {
@@ -23,7 +24,7 @@ import {
   FlatList,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PostsCard } from "../../components/PostCard";
 import { ListEmpty } from "../../components/ListEmpty";
 
@@ -70,7 +71,28 @@ export default function RegistrationScreen({ navigation }) {
       unsubscribe();
     };
   }, []);
-  console.log(posts);
+
+  useFocusEffect(
+    useCallback(() => {
+      const request = query(
+        collection(db, "posts"),
+        where("id", "==", userId),
+        orderBy("postDate", "desc")
+      );
+      const unsubscribe = onSnapshot(request, (querySnapshot) => {
+        const allPosts = [];
+        querySnapshot.forEach((doc) => {
+          allPosts.push({ ...doc.data(), id: doc.id });
+        });
+        setPosts(allPosts);
+      });
+      return () => {
+        unsubscribe();
+        setPosts([]);
+        // console.log("is focus");
+      };
+    }, [])
+  );
 
   return (
     <View style={styles.container}>

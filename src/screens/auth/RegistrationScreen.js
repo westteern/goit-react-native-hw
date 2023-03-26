@@ -60,10 +60,7 @@ export default function RegistrationScreen({ navigation }) {
       const userAvatar = await getDownloadURL(
         ref(storage, `userAvatar/${file._data.blobId}`)
       );
-      setState((prevState) => ({
-        ...prevState,
-        avatar: userAvatar,
-      }));
+      return userAvatar;
     } catch (error) {
       console.log(error);
     }
@@ -74,8 +71,8 @@ export default function RegistrationScreen({ navigation }) {
     Keyboard.dismiss();
   };
   const onSubmit = async () => {
-    await uploadAvatar();
-    dispatch(authSignUpUser(state));
+    const avatar = await uploadAvatar();
+    dispatch(authSignUpUser({ ...state, avatar }));
     setState(initialState);
   };
   useEffect(() => {
